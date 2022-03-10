@@ -68,6 +68,27 @@ def get_train_transforms(img_size: int) -> A.Compose:
     )
 
 
+def get_val_transforms(img_size: int):
+    """get data transformations for val set
+
+    Args:
+        img_size (int): image size to resize input data
+
+    Returns:
+        A.Compose: whole data transformations to apply
+    """
+    return A.Compose(
+        [
+            A.Resize(height=img_size, width=img_size),
+            A.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ToTensorV2(),
+        ],
+        bbox_params=A.BboxParams(
+            format="coco", min_area=0, min_visibility=0, label_fields=["labels"]
+        ),
+    )
+
+
 # %%
 import torchvision.transforms.functional as F
 from torchvision.utils import draw_bounding_boxes
@@ -95,27 +116,6 @@ img
 # %%
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader
-
-
-def get_val_transforms(img_size: int):
-    """get data transformations for val set
-
-    Args:
-        img_size (int): image size to resize input data
-
-    Returns:
-        A.Compose: whole data transformations to apply
-    """
-    return A.Compose(
-        [
-            A.Resize(height=img_size, width=img_size),
-            A.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-            ToTensorV2(),
-        ],
-        bbox_params=A.BboxParams(
-            format="coco", min_area=0, min_visibility=0, label_fields=["labels"]
-        ),
-    )
 
 
 class EfficientDetDataModule(LightningDataModule):
@@ -228,7 +228,7 @@ def create_model(
         backbone (str): the name of image featurizer (backbone) part to use
          supported featurizers are defined
          in timm (https://github.com/rwightman/pytorch-image-models#models)
-         and can be examied with `timm.list_models()`
+         and can be examined with `timm.list_models()`
         num_classes (int): the number of classes
         img_size (int): image size to take in as input
 
