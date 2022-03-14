@@ -41,9 +41,31 @@ class EffDetCOCODataset(CocoDetection):
 
 
 # %%
+import torchvision.transforms.functional as F
+from albumentations.pytorch.transforms import ToTensorV2
+from torchvision.utils import draw_bounding_boxes
+
+img_dir = Path("odFridgeObjects/images")
+annotation_dir = Path("odFridgeObjects/annotations")
+id2label = {1: "can", 2: "carton", 3: "milk_bottle", 4: "water_bottle"}
+dataset = EffDetCOCODataset(
+    img_dir=img_dir,
+    annotation_path=annotation_dir / "odFridgeObjects_coco_clean.json",
+    transforms=ToTensorV2(),
+)
+img, target = dataset[9]
+labels = [id2label[id] for id in target["labels"].tolist()]
+
+img = draw_bounding_boxes(
+    img, target["bboxes"][:, [1, 0, 3, 2]], labels, colors="Turquoise", width=2
+)
+img = F.to_pil_image(img.detach())
+img
+
+
+# %%
 
 import albumentations as A
-from albumentations.pytorch.transforms import ToTensorV2
 
 
 def get_train_transforms(img_size: int) -> A.Compose:
@@ -87,30 +109,6 @@ def get_val_transforms(img_size: int):
             format="coco", min_area=0, min_visibility=0, label_fields=["labels"]
         ),
     )
-
-
-# %%
-import torchvision.transforms.functional as F
-from torchvision.utils import draw_bounding_boxes
-
-img_dir = Path("odFridgeObjects/images")
-annotation_dir = Path("odFridgeObjects/annotations")
-id2label = {1: "can", 2: "carton", 3: "milk_bottle", 4: "water_bottle"}
-dataset = EffDetCOCODataset(
-    img_dir=img_dir,
-    annotation_path=annotation_dir / "odFridgeObjects_coco_clean.json",
-    transforms=get_train_transforms(img_size=512),
-)
-img, target = dataset[9]
-labels = [id2label[id] for id in target["labels"].tolist()]
-
-img = draw_bounding_boxes(
-    (img * 255).to(torch.uint8),
-    target["bboxes"][:, [1, 0, 3, 2]],
-    labels,
-)
-img = F.to_pil_image(img.detach())
-img
 
 
 # %%
