@@ -262,10 +262,10 @@ class EfficientDetModel(LightningModule):
         backbone (str): the name of image featurizer (backbone) part to use
          supported featurizers are defined
          in timm (https://github.com/rwightman/pytorch-image-models#models)
-         and can be examied with `timm.list_models()`
+         and can be examined with `timm.list_models()`
         num_classes (int): the number of classes
         img_size (int): image size to take in as input
-        learning_rate (float, optional): learning rate for training. Defaults to 0.0002.
+        learning_rate (float, optional): learning rate for training. Defaults to 0.02.
     """
 
     def __init__(
